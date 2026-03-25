@@ -1,0 +1,44 @@
+# Stage 1 JAR builder
+
+
+# Maven Image 
+
+FROM maven:3.8.3-openjdk-17 AS builder 
+
+
+# Creating a work directory 
+
+WORKDIR /app
+
+#Copy the souce code from the local
+
+COPY . /app
+
+#Build application
+
+RUN mvn clean install -DskipTests=true
+
+
+#stage 2
+
+# small size java image
+
+FROM eclipse-temurin:17-jdk-alpine
+
+#set work directory
+
+WORKDIR /app
+
+#copy build from stage 1
+
+COPY --from=builder /app/target/*.jar /app/target/expenseapp.jar 
+
+#PORT
+
+EXPOSE 8080:8080
+
+# start the application
+
+
+CMD ["java", "-jar", "expenseapp.jar"]
+
